@@ -1,7 +1,7 @@
 extends Control
 class_name PlotTooltip
 
-@onready var background: NinePatchRect
+@onready var background: ColorRect
 @onready var title_label: Label
 @onready var info_label: Label
 @onready var stats_container: VBoxContainer
@@ -15,8 +15,8 @@ func _ready() -> void:
 	setup_tooltip()
 
 func setup_tooltip() -> void:
-	# Background
-	background = NinePatchRect.new()
+	# Background - use ColorRect instead of NinePatchRect
+	background = ColorRect.new()
 	background.color = Color(0.1, 0.1, 0.1, 0.9)
 	background.size = Vector2(250, 120)
 	add_child(background)

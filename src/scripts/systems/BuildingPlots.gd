@@ -101,12 +101,31 @@ func create_plot_visual(plot_data: Dictionary, color: Color) -> void:
 	plot_rect.color = color
 	plot_visual.add_child(plot_rect)
 	
-	# Border
+	# Border - create a simple outline
 	var border = ColorRect.new()
 	border.size = Vector2(PLOT_SIZE * 0.85, PLOT_SIZE * 0.85)
 	border.position = -border.size / 2
 	border.color = Color.TRANSPARENT
-	border.add_theme_stylebox_override("panel", create_border_style())
+	
+	# Create border lines manually
+	for i in range(4):
+		var line = ColorRect.new()
+		line.color = Color.WHITE
+		match i:
+			0: # Top
+				line.size = Vector2(border.size.x, 2)
+				line.position = Vector2(0, 0)
+			1: # Right
+				line.size = Vector2(2, border.size.y)
+				line.position = Vector2(border.size.x - 2, 0)
+			2: # Bottom
+				line.size = Vector2(border.size.x, 2)
+				line.position = Vector2(0, border.size.y - 2)
+			3: # Left
+				line.size = Vector2(2, border.size.y)
+				line.position = Vector2(0, 0)
+		border.add_child(line)
+	
 	plot_visual.add_child(border)
 	
 	# Add interaction area
@@ -121,25 +140,16 @@ func create_plot_visual(plot_data: Dictionary, color: Color) -> void:
 	# Store plot data in the visual
 	plot_visual.set_meta("plot_data", plot_data)
 	
-	# Connect signals
-	area.input_event.connect(_on_plot_clicked.bind(plot_data))
+	# Connect signals with proper binding
+	area.input_event.connect(_on_area_input_event.bind(plot_data))
 	area.mouse_entered.connect(_on_plot_hovered.bind(plot_data))
 	area.mouse_exited.connect(_on_plot_exited.bind(plot_data))
 	
 	add_child(plot_visual)
 	plot_visuals.append(plot_visual)
 
-func create_border_style() -> StyleBoxFlat:
-	var style = StyleBoxFlat.new()
-	style.border_width_left = 2
-	style.border_width_right = 2
-	style.border_width_top = 2
-	style.border_width_bottom = 2
-	style.border_color = Color.WHITE
-	style.bg_color = Color.TRANSPARENT
-	return style
 
-func _on_plot_clicked(_viewport: Node, event: InputEvent, _shape_idx: int, plot_data: Dictionary) -> void:
+func _on_area_input_event(plot_data: Dictionary, _viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event.is_action_pressed("left_click"):
 		select_plot(plot_data)
 
