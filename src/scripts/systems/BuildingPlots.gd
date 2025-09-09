@@ -327,4 +327,3 @@ func find_plot_at_position(world_pos: Vector2) -> Dictionary:
 			closest_plot = plot
 	
 	return closest_plot
-

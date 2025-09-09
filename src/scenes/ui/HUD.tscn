@@ -1,12 +1,14 @@
 [gd_scene load_steps=2 format=3 uid="uid://dhqx8nvkp2y5m"]
 
-[ext_resource type="Script" path="res://src/scripts/ui/SimpleHUD.gd" id="1_7nmsx"]
+[ext_resource type="Script" uid="uid://c2uyud45cdpkx" path="res://src/scripts/ui/SimpleHUD.gd" id="1_7nmsx"]
 
 [node name="HUD" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_7nmsx")
 
@@ -24,16 +26,16 @@ offset_bottom = 70.0
 
 [node name="CleanMoneyLabel" type="Label" parent="TopBar/MoneyContainer"]
 layout_mode = 2
-text = "Clean: $50,000"
 theme_override_colors/font_color = Color(0, 1, 0, 1)
+text = "Clean: $50,000"
 
 [node name="Separator" type="VSeparator" parent="TopBar/MoneyContainer"]
 layout_mode = 2
 
 [node name="DirtyMoneyLabel" type="Label" parent="TopBar/MoneyContainer"]
 layout_mode = 2
-text = "Dirty: $0"
 theme_override_colors/font_color = Color(1, 0, 0, 1)
+text = "Dirty: $0"
 
 [node name="StatsContainer" type="HBoxContainer" parent="TopBar"]
 layout_mode = 0
@@ -103,9 +105,13 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = -10.0
 offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+current_tab = 0
 
 [node name="Legal" type="ScrollContainer" parent="BottomPanel/TabContainer"]
 layout_mode = 2
+metadata/_tab_index = 0
 
 [node name="LegalButtons" type="HBoxContainer" parent="BottomPanel/TabContainer/Legal"]
 layout_mode = 2
@@ -133,6 +139,7 @@ $2500/cycle"
 [node name="Illegal" type="ScrollContainer" parent="BottomPanel/TabContainer"]
 visible = false
 layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="IllegalButtons" type="HBoxContainer" parent="BottomPanel/TabContainer/Illegal"]
 layout_mode = 2

@@ -219,16 +219,16 @@ func invest_in_service(service: String) -> void:
 func get_investment_effect_message(service: String) -> String:
 	match service:
 		"transport":
-			var bonus = (CitySim.get_transport_income_bonus() - 1.0) * 100
+			var bonus = (CitySim.get_transport_income_bonus() - 1.0) * 100.0
 			return "Business income +" + str(int(bonus)) + "%"
 		"police":
-			var reduction = CitySim.get_police_heat_reduction() * 100
+			var reduction = CitySim.get_police_heat_reduction() * 100.0
 			return "Heat reduction +" + str(int(reduction)) + "%"
 		"public_works":
 			var approval = CitySim.get_public_works_approval_bonus()
 			return "City approval +" + str(int(approval))
 		"garbage":
-			var prosperity = (CitySim.get_garbage_prosperity_bonus() - 1.0) * 100
+			var prosperity = (CitySim.get_garbage_prosperity_bonus() - 1.0) * 100.0
 			return "District prosperity +" + str(int(prosperity)) + "%"
 		_:
 			return "Service quality improved"

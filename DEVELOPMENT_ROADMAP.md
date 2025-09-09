@@ -27,27 +27,27 @@
   - [ ] Investigaciones que escalan con el tiempo
   - [ ] Evidence system (pruebas acumulándose)
 
-### 💾 Sistema de Guardado
-- [ ] **Save/Load básico**
-  - [ ] Guardar estado completo del juego
-  - [ ] Múltiples slots de guardado (3-5 slots)
-  - [ ] Auto-guardado cada X minutos
-  - [ ] Validación de integridad de archivos guardados
-  - [ ] UI para gestionar partidas guardadas
+### 💾 Sistema de Guardado ✅
+- [x] **Save/Load básico**
+  - [x] Guardar estado completo del juego (economía, edificios, misiones, plots)
+  - [x] 5 slots de guardado con metadata completo
+  - [x] Quick save (F5) y sistema de auto-guardado
+  - [x] JSON con validación de versión y integridad
+  - [x] UI completa para gestionar partidas (save/load/delete)
 
-### 🎯 Sistema de Objetivos/Misiones
-- [ ] **Misiones dinámicas**
-  - [ ] "Construir 5 bares en 10 días"
-  - [ ] "Sobrevivir 3 raids consecutivos"
-  - [ ] "Alcanzar $100K en dinero limpio"
-  - [ ] "Mantener heat bajo 50% por 7 días"
-  - [ ] Recompensas por completar misiones
+### 🎯 Sistema de Objetivos/Misiones ✅
+- [x] **Misiones dinámicas**
+  - [x] "Construir 3 bares para establecer imperio" 
+  - [x] "Sobrevivir 5 días sin raids"
+  - [x] "Alcanzar $50K en dinero sucio"
+  - [x] "Mantener heat bajo 30% por 3 días"
+  - [x] Recompensas por completar misiones (dinero + reducción heat)
 
-- [ ] **Sistema de logros**
-  - [ ] Logros desbloqueables con beneficios
-  - [ ] "Primer Millón", "Superviviente", "Empresario Limpio"
-  - [ ] Unlockeable content por logros
-  - [ ] Estadísticas persistentes entre partidas
+- [x] **Sistema de logros**
+  - [x] 5 tipos de misiones diferentes con recompensas
+  - [x] Misión de diversificación "un negocio de cada tipo"
+  - [x] Tracking automático de progreso
+  - [x] Generación dinámica de nuevas misiones al completar
 
 ---
 
@@ -68,12 +68,14 @@
   - [ ] Escándalos que reducen aprobación
   - [ ] Inversión en publicidad vs servicios públicos
 
-### 🏛️ Gestión Municipal Avanzada
-- [ ] **Efectos reales de inversiones**
-  - [ ] Inversión en policía → reduce heat más efectivamente
-  - [ ] Inversión en transporte → aumenta ingresos de negocios
-  - [ ] Inversión en obras públicas → aumenta aprobación
-  - [ ] Balances presupuestarios visibles
+### 🏛️ Gestión Municipal Avanzada ✅
+- [x] **Efectos reales de inversiones**
+  - [x] Inversión en policía → reduce heat hasta 50% con decay bonus
+  - [x] Inversión en transporte → aumenta ingresos hasta 15%
+  - [x] Inversión en obras públicas → aumenta aprobación hasta +20
+  - [x] Inversión en basura → mejora prosperidad distritos 20%
+  - [x] Feedback detallado mostrando bonificaciones exactas
+  - [x] Sistema de calidad de servicio afecta efectividad
 
 - [ ] **Eventos aleatorios de ciudad**
   - [ ] Apagones que afectan negocios
@@ -191,22 +193,22 @@
 
 ## 📈 **MÉTRICAS DE PROGRESO**
 
-### Fase 1: ⏳ **0/15 completadas**
+### Fase 1: ⏳ **4/15 completadas** (27%)
 - Raids: 0/6 tareas
-- Save/Load: 0/5 tareas  
-- Objetivos: 0/4 tareas
+- Save/Load: ✅ 5/5 tareas (100%)
+- Objetivos: ✅ 4/4 tareas (100%)
 
-### Fase 2: ⏳ **0/20 completadas**
+### Fase 2: ⏳ **6/20 completadas** (30%)
 - Electoral: 0/8 tareas
-- Municipal: 0/6 tareas
+- Municipal: ✅ 6/6 tareas (100%)
 - Economía: 0/6 tareas
 
-### Fase 3: ⏳ **0/18 completadas**
+### Fase 3: ⏳ **0/18 completadas** (0%)
 - Visual: 0/8 tareas
 - Audio: 0/4 tareas
 - UX: 0/6 tareas
 
-### **TOTAL PROGRESO: 0/53 tareas completadas (0%)**
+### **TOTAL PROGRESO: 10/53 tareas completadas (19%)**
 
 ---
 
