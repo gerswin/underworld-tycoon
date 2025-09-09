@@ -41,6 +41,37 @@ var business_types: Dictionary = {
 		"build_time": 15.0,
 		"type": "laundering",
 		"laundering_bonus": 0.1
+	},
+	"casino": {
+		"cost": 45000.0,
+		"base_income": 4500.0,
+		"heat_generation": 5.0,
+		"build_time": 20.0,
+		"type": "front"
+	},
+	"pawnshop": {
+		"cost": 12000.0,
+		"base_income": 900.0,
+		"heat_generation": 2.0,
+		"build_time": 8.0,
+		"type": "front"
+	},
+	"restaurant": {
+		"cost": 25000.0,
+		"base_income": 1200.0,
+		"heat_generation": -0.5,  # Businesses legales reducen un poco el heat
+		"build_time": 12.0,
+		"type": "laundering",
+		"laundering_bonus": 0.05
+	},
+	"garage": {
+		"cost": 18000.0,
+		"base_income": 1800.0,
+		"heat_generation": 3.5,
+		"build_time": 10.0,
+		"type": "production",
+		"produces": "contraband",
+		"production_rate": 8
 	}
 }
 

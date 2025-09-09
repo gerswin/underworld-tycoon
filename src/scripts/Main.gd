@@ -31,6 +31,7 @@ var construction_manager: ConstructionManager
 var notification_history: NotificationHistory
 var notification_panel: NotificationPanel
 var mission_system: MissionSystem
+var save_load_panel: SaveLoadPanel
 
 func _ready() -> void:
 	initialize_map()
@@ -103,6 +104,10 @@ func setup_income_manager() -> void:
 	# Setup mission system
 	mission_system = MissionSystem.new()
 	add_child(mission_system)
+	
+	# Setup save/load system
+	save_load_panel = SaveLoadPanel.new()
+	$UI.add_child(save_load_panel)
 
 func connect_signals() -> void:
 	EventBus.building_selected.connect(_on_building_selected)
@@ -141,6 +146,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_ESCAPE:
 				if event.pressed and is_placing_building:
 					cancel_building_placement()
+			KEY_F5:
+				if event.pressed:
+					quick_save()
+			KEY_F9:
+				if event.pressed:
+					show_load_menu()
+			KEY_S:
+				if event.pressed and event.ctrl_pressed:
+					show_save_menu()
 	
 	# Don't handle left clicks in _unhandled_input - let building plots handle them
 	# This prevents Main from intercepting clicks before they reach the Area2D nodes
@@ -282,6 +296,14 @@ func create_building_preview() -> void:
 			preview_rect.color = Color(0.3, 0.3, 0.3)
 		"ngo":
 			preview_rect.color = Color(0.3, 0.5, 0.7)
+		"casino":
+			preview_rect.color = Color(0.8, 0.2, 0.2)
+		"pawnshop":
+			preview_rect.color = Color(0.7, 0.6, 0.3)
+		"restaurant":
+			preview_rect.color = Color(0.4, 0.6, 0.3)
+		"garage":
+			preview_rect.color = Color(0.4, 0.4, 0.4)
 		_:
 			preview_rect.color = Color.WHITE
 	
@@ -445,3 +467,20 @@ func show_initial_help() -> void:
 	EventBus.notify("Click on colored squares to build businesses", "info")
 	EventBus.notify("Press H to view notification history", "info")
 	EventBus.notify("Press G to toggle grid overlay", "info")
+	EventBus.notify("Press F5 to quick save, F9 to load, Ctrl+S to save menu", "info")
+
+func quick_save() -> void:
+	if save_load_panel and save_load_panel.save_system:
+		var success = save_load_panel.save_system.save_game(1, "Quick Save")
+		if success:
+			EventBus.notify_success("Quick save completed")
+		else:
+			EventBus.notify_error("Quick save failed")
+
+func show_save_menu() -> void:
+	if save_load_panel:
+		save_load_panel.show_save_panel()
+
+func show_load_menu() -> void:
+	if save_load_panel:
+		save_load_panel.show_load_panel()

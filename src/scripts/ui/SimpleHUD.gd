@@ -132,6 +132,18 @@ func setup_individual_button(button: Button) -> void:
 	elif "ngo" in button_name:
 		if !button.pressed.is_connected(func(): start_building("ngo")):
 			button.pressed.connect(func(): start_building("ngo"))
+	elif "casino" in button_name:
+		if !button.pressed.is_connected(func(): start_building("casino")):
+			button.pressed.connect(func(): start_building("casino"))
+	elif "pawnshop" in button_name:
+		if !button.pressed.is_connected(func(): start_building("pawnshop")):
+			button.pressed.connect(func(): start_building("pawnshop"))
+	elif "restaurant" in button_name:
+		if !button.pressed.is_connected(func(): start_building("restaurant")):
+			button.pressed.connect(func(): start_building("restaurant"))
+	elif "garage" in button_name:
+		if !button.pressed.is_connected(func(): start_building("garage")):
+			button.pressed.connect(func(): start_building("garage"))
 	elif "launder" in button_name:
 		if !button.pressed.is_connected(_on_launder_pressed):
 			button.pressed.connect(_on_launder_pressed)
