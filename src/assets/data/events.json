@@ -1,0 +1,115 @@
+{
+  "events": {
+    "festival": {
+      "name": "City Festival",
+      "description": "A major festival increases nightlife activity",
+      "probability": 0.1,
+      "duration": 48,
+      "effects": {
+        "income_multiplier": 1.5,
+        "heat_increase": 5,
+        "approval_increase": 10
+      },
+      "requirements": {
+        "min_day": 5
+      }
+    },
+    "police_raid": {
+      "name": "Police Raid",
+      "description": "Authorities conduct surprise raids on suspicious businesses",
+      "probability": 0.05,
+      "duration": 1,
+      "effects": {
+        "businesses_closed": 2,
+        "heat_reduction": 20,
+        "approval_decrease": 5
+      },
+      "requirements": {
+        "min_heat": 50
+      }
+    },
+    "economic_crisis": {
+      "name": "Economic Crisis",
+      "description": "Financial crisis hits the city, reducing all income",
+      "probability": 0.08,
+      "duration": 72,
+      "effects": {
+        "income_multiplier": 0.7,
+        "heat_decrease": 5,
+        "approval_decrease": 15
+      },
+      "requirements": {
+        "min_day": 10
+      }
+    },
+    "media_investigation": {
+      "name": "Media Investigation",
+      "description": "Journalists are investigating corruption in the city",
+      "probability": 0.15,
+      "duration": 24,
+      "effects": {
+        "heat_increase": 10,
+        "approval_decrease": 10
+      },
+      "requirements": {
+        "min_heat": 30,
+        "min_dirty_money": 50000
+      }
+    },
+    "gang_war": {
+      "name": "Gang War",
+      "description": "Rival gangs fight for territory",
+      "probability": 0.05,
+      "duration": 12,
+      "effects": {
+        "heat_increase": 15,
+        "businesses_damaged": 1,
+        "approval_decrease": 20
+      },
+      "requirements": {
+        "min_businesses": 5
+      }
+    },
+    "election_campaign": {
+      "name": "Election Campaign",
+      "description": "Political opponents scrutinize your administration",
+      "probability": 0.2,
+      "duration": 48,
+      "effects": {
+        "heat_increase": 5,
+        "approval_variance": 10
+      },
+      "requirements": {
+        "min_day": 15
+      }
+    },
+    "construction_boom": {
+      "name": "Construction Boom",
+      "description": "Increased construction activity provides cover for operations",
+      "probability": 0.12,
+      "duration": 36,
+      "effects": {
+        "build_cost_multiplier": 0.8,
+        "heat_decrease": 3
+      },
+      "requirements": {
+        "min_day": 7
+      }
+    },
+    "federal_audit": {
+      "name": "Federal Audit",
+      "description": "Federal authorities audit city finances",
+      "probability": 0.03,
+      "duration": 1,
+      "effects": {
+        "money_loss_percentage": 0.1,
+        "heat_increase": 20,
+        "approval_decrease": 15
+      },
+      "requirements": {
+        "min_heat": 60,
+        "min_clean_money": 100000
+      }
+    }
+  }
+}

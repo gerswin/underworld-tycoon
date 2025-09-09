@@ -1,0 +1,68 @@
+{
+  "districts": {
+    "downtown": {
+      "id": 0,
+      "name": "Downtown",
+      "description": "Business center with high demand but heavy scrutiny",
+      "base_demand": 1.5,
+      "base_heat_multiplier": 1.3,
+      "population": 50000,
+      "prosperity": 70,
+      "special_features": ["high_traffic", "media_presence"],
+      "building_limits": {
+        "bar": 5,
+        "club": 3,
+        "workshop": 1,
+        "ngo": 2
+      }
+    },
+    "industrial": {
+      "id": 1,
+      "name": "Industrial District",
+      "description": "Factory area ideal for workshops with moderate oversight",
+      "base_demand": 0.8,
+      "base_heat_multiplier": 0.7,
+      "population": 20000,
+      "prosperity": 40,
+      "special_features": ["workshop_bonus", "low_visibility"],
+      "building_limits": {
+        "bar": 3,
+        "club": 1,
+        "workshop": 5,
+        "ngo": 1
+      }
+    },
+    "residential": {
+      "id": 2,
+      "name": "Residential Area",
+      "description": "Quiet neighborhoods with steady income but watchful residents",
+      "base_demand": 1.0,
+      "base_heat_multiplier": 1.0,
+      "population": 35000,
+      "prosperity": 55,
+      "special_features": ["steady_income", "neighborhood_watch"],
+      "building_limits": {
+        "bar": 4,
+        "club": 2,
+        "workshop": 2,
+        "ngo": 3
+      }
+    },
+    "waterfront": {
+      "id": 3,
+      "name": "Waterfront",
+      "description": "Tourist area with high nightlife demand and smuggling opportunities",
+      "base_demand": 1.3,
+      "base_heat_multiplier": 0.9,
+      "population": 25000,
+      "prosperity": 60,
+      "special_features": ["nightlife_bonus", "smuggling_route"],
+      "building_limits": {
+        "bar": 4,
+        "club": 4,
+        "workshop": 2,
+        "ngo": 2
+      }
+    }
+  }
+}

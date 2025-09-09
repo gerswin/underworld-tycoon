@@ -1,0 +1,174 @@
+[gd_scene load_steps=2 format=3 uid="uid://dhqx8nvkp2y5m"]
+
+[ext_resource type="Script" path="res://src/scripts/ui/HUD.gd" id="1_7nmsx"]
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("1_7nmsx")
+
+[node name="TopBar" type="Panel" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+offset_bottom = 80.0
+
+[node name="MoneyContainer" type="HBoxContainer" parent="TopBar"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 10.0
+offset_right = 400.0
+offset_bottom = 70.0
+
+[node name="CleanMoneyLabel" type="Label" parent="TopBar/MoneyContainer"]
+layout_mode = 2
+text = "Clean: $50,000"
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+
+[node name="Separator" type="VSeparator" parent="TopBar/MoneyContainer"]
+layout_mode = 2
+
+[node name="DirtyMoneyLabel" type="Label" parent="TopBar/MoneyContainer"]
+layout_mode = 2
+text = "Dirty: $0"
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+
+[node name="StatsContainer" type="HBoxContainer" parent="TopBar"]
+layout_mode = 0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 70.0
+
+[node name="ApprovalLabel" type="Label" parent="TopBar/StatsContainer"]
+layout_mode = 2
+text = "Approval: 60%"
+
+[node name="Separator" type="VSeparator" parent="TopBar/StatsContainer"]
+layout_mode = 2
+
+[node name="HeatLabel" type="Label" parent="TopBar/StatsContainer"]
+layout_mode = 2
+text = "Heat: 0%"
+
+[node name="Separator2" type="VSeparator" parent="TopBar/StatsContainer"]
+layout_mode = 2
+
+[node name="TimeLabel" type="Label" parent="TopBar/StatsContainer"]
+layout_mode = 2
+text = "Day 1 - 6:00 AM"
+
+[node name="SpeedContainer" type="HBoxContainer" parent="TopBar"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = 70.0
+
+[node name="PauseButton" type="Button" parent="TopBar/SpeedContainer"]
+layout_mode = 2
+text = "⏸"
+
+[node name="Speed1xButton" type="Button" parent="TopBar/SpeedContainer"]
+layout_mode = 2
+text = "1x"
+
+[node name="Speed2xButton" type="Button" parent="TopBar/SpeedContainer"]
+layout_mode = 2
+text = "2x"
+
+[node name="Speed3xButton" type="Button" parent="TopBar/SpeedContainer"]
+layout_mode = 2
+text = "3x"
+
+[node name="BottomPanel" type="Panel" parent="."]
+layout_mode = 0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -200.0
+
+[node name="TabContainer" type="TabContainer" parent="BottomPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="Legal" type="ScrollContainer" parent="BottomPanel/TabContainer"]
+layout_mode = 2
+
+[node name="LegalButtons" type="HBoxContainer" parent="BottomPanel/TabContainer/Legal"]
+layout_mode = 2
+
+[node name="GarbageButton" type="Button" parent="BottomPanel/TabContainer/Legal/LegalButtons"]
+layout_mode = 2
+text = "Garbage Service
+$1000/cycle"
+
+[node name="TransportButton" type="Button" parent="BottomPanel/TabContainer/Legal/LegalButtons"]
+layout_mode = 2
+text = "Transport
+$1500/cycle"
+
+[node name="PoliceButton" type="Button" parent="BottomPanel/TabContainer/Legal/LegalButtons"]
+layout_mode = 2
+text = "Police
+$2000/cycle"
+
+[node name="PublicWorksButton" type="Button" parent="BottomPanel/TabContainer/Legal/LegalButtons"]
+layout_mode = 2
+text = "Public Works
+$2500/cycle"
+
+[node name="Illegal" type="ScrollContainer" parent="BottomPanel/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="IllegalButtons" type="HBoxContainer" parent="BottomPanel/TabContainer/Illegal"]
+layout_mode = 2
+
+[node name="BarButton" type="Button" parent="BottomPanel/TabContainer/Illegal/IllegalButtons"]
+layout_mode = 2
+text = "Bar
+$10,000"
+
+[node name="ClubButton" type="Button" parent="BottomPanel/TabContainer/Illegal/IllegalButtons"]
+layout_mode = 2
+text = "Night Club
+$25,000"
+
+[node name="WorkshopButton" type="Button" parent="BottomPanel/TabContainer/Illegal/IllegalButtons"]
+layout_mode = 2
+text = "Workshop
+$15,000"
+
+[node name="NGOButton" type="Button" parent="BottomPanel/TabContainer/Illegal/IllegalButtons"]
+layout_mode = 2
+text = "NGO
+$30,000"
+
+[node name="LaunderButton" type="Button" parent="BottomPanel/TabContainer/Illegal/IllegalButtons"]
+layout_mode = 2
+text = "Launder Money"
+
+[node name="NotificationContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -200.0
+offset_right = -20.0
+offset_bottom = 200.0
+mouse_filter = 2
