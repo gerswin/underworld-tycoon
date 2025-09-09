@@ -308,7 +308,7 @@ func restore_buildings(main_scene: Node, buildings_data: Array) -> void:
 	# Restore buildings
 	for building_data in buildings_data:
 		var business_data = building_data.get("business_data", {})
-		var position = building_data.get("position", Vector2.ZERO)
+		var _position = building_data.get("position", Vector2.ZERO)  # Position stored in business_data
 		
 		if business_data.size() > 0:
 			main_scene.create_building_visual(business_data)
@@ -354,5 +354,6 @@ func format_timestamp(timestamp: int) -> String:
 
 func format_playtime(seconds: float) -> String:
 	var hours = int(seconds / 3600.0)
-	var minutes = int(int(seconds) % 3600 / 60)
+	var remaining_seconds = int(seconds) % 3600
+	var minutes = int(remaining_seconds / 60.0)
 	return "%02d:%02d" % [hours, minutes]
