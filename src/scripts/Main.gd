@@ -18,15 +18,31 @@ var current_tool: String = ""
 var selected_building_type: String = ""
 var is_placing_building: bool = false
 
+var grid_overlay: Node2D
+var building_preview: Node2D
+var show_grid: bool = true
+var income_manager: IncomeManager
+var effects_manager: EffectsManager
+
 func _ready() -> void:
 	initialize_map()
 	setup_camera()
+	setup_income_manager()
 	connect_signals()
 	GameManager.start_game()
 	print("Main scene initialized")
 
 func initialize_map() -> void:
-	# This will be expanded when we have tileset
+	# Generate district visuals
+	MapGenerator.generate_district_visuals(districts_container)
+	
+	# Generate roads
+	MapGenerator.generate_roads($World)
+	
+	# Generate grid overlay
+	grid_overlay = MapGenerator.generate_grid_overlay($World)
+	grid_overlay.visible = show_grid
+	
 	print("Map initialized: ", map_width, "x", map_height)
 
 func setup_camera() -> void:
@@ -36,10 +52,21 @@ func setup_camera() -> void:
 	camera.limit_right = map_width * grid_size
 	camera.limit_bottom = map_height * grid_size
 
+func setup_income_manager() -> void:
+	income_manager = IncomeManager.new()
+	add_child(income_manager)
+	income_manager.income_cycle_completed.connect(_on_income_cycle_completed)
+	
+	# Setup effects manager
+	effects_manager = EffectsManager.new()
+	add_child(effects_manager)
+
 func connect_signals() -> void:
 	EventBus.building_selected.connect(_on_building_selected)
 	EventBus.district_clicked.connect(_on_district_clicked)
 	GameManager.game_paused.connect(_on_game_paused)
+	GameManager.day_night_changed.connect(_on_day_night_changed)
+	TimeManager.cycle_changed.connect(_on_cycle_changed)
 
 func _process(delta: float) -> void:
 	handle_camera_movement(delta)
@@ -114,32 +141,59 @@ func cancel_building_placement() -> void:
 	is_placing_building = false
 	selected_building_type = ""
 	current_tool = ""
+	
+	if building_preview:
+		building_preview.queue_free()
+		building_preview = null
 
 func create_building_visual(business: Dictionary) -> void:
-	# Placeholder for building visual
-	# This will be replaced with actual sprites later
-	var building_node = ColorRect.new()
-	building_node.size = Vector2(grid_size * 0.8, grid_size * 0.8)
-	building_node.position = business["position"] - building_node.size / 2
-	
-	match business["type"]:
-		"bar":
-			building_node.color = Color.BROWN
-		"club":
-			building_node.color = Color.PURPLE
-		"workshop":
-			building_node.color = Color.DARK_GRAY
-		"ngo":
-			building_node.color = Color.BLUE
-		_:
-			building_node.color = Color.WHITE
-	
-	building_node.set_meta("business_data", business)
+	var building_scene = preload("res://src/scripts/buildings/Building.gd")
+	var building_node = Node2D.new()
+	building_node.set_script(building_scene)
+	building_node.position = business["position"]
+	building_node.business_data = business
+	building_node.clicked.connect(_on_building_clicked)
+	building_node.income_generated.connect(_on_building_income_generated)
 	buildings_container.add_child(building_node)
 
 func update_building_preview() -> void:
-	# This will show a preview of the building at mouse position
-	pass
+	if !building_preview:
+		create_building_preview()
+	
+	var mouse_pos = get_global_mouse_position()
+	var grid_pos = world_to_grid(mouse_pos)
+	var world_pos = grid_to_world(grid_pos)
+	
+	building_preview.position = world_pos
+	
+	# Update preview color based on validity
+	if is_valid_building_position(grid_pos):
+		building_preview.modulate = Color(0, 1, 0, 0.5)  # Green = valid
+	else:
+		building_preview.modulate = Color(1, 0, 0, 0.5)  # Red = invalid
+
+func create_building_preview() -> void:
+	building_preview = Node2D.new()
+	
+	# Create preview visual
+	var preview_rect = ColorRect.new()
+	preview_rect.size = Vector2(grid_size * 0.8, grid_size * 0.8)
+	preview_rect.position = -preview_rect.size / 2
+	
+	match selected_building_type:
+		"bar":
+			preview_rect.color = Color(0.6, 0.4, 0.2)
+		"club":
+			preview_rect.color = Color(0.5, 0.2, 0.5)
+		"workshop":
+			preview_rect.color = Color(0.3, 0.3, 0.3)
+		"ngo":
+			preview_rect.color = Color(0.3, 0.5, 0.7)
+		_:
+			preview_rect.color = Color.WHITE
+	
+	building_preview.add_child(preview_rect)
+	add_child(building_preview)
 
 func is_valid_building_position(grid_pos: Vector2i) -> bool:
 	# Check if position is within map bounds
@@ -148,8 +202,18 @@ func is_valid_building_position(grid_pos: Vector2i) -> bool:
 	if grid_pos.y < 0 or grid_pos.y >= map_height:
 		return false
 	
-	# Check if position is not occupied
-	# This will be expanded with actual collision detection
+	# Check if position is not on a road
+	var half_width = map_width / 2
+	var half_height = map_height / 2
+	if abs(grid_pos.x - half_width) < 1 or abs(grid_pos.y - half_height) < 1:
+		return false
+	
+	# Check if position is not occupied by another building
+	var world_pos = grid_to_world(grid_pos)
+	for building in buildings_container.get_children():
+		if building.position.distance_to(world_pos) < grid_size:
+			return false
+	
 	return true
 
 func check_building_selection() -> void:
@@ -186,8 +250,45 @@ func grid_to_world(grid_pos: Vector2i) -> Vector2:
 func _on_building_selected(building: Dictionary) -> void:
 	print("Building selected: ", building["type"], " at ", building["position"])
 
+func _on_building_clicked(building: Node2D) -> void:
+	if building.has_meta("business_data"):
+		var data = building.get_meta("business_data")
+		EventBus.building_selected.emit(data)
+
+func _on_building_income_generated(amount: float) -> void:
+	Economy.add_dirty_money(amount)
+	RiskSystem.add_heat(amount / 1000.0, "business_operation")
+
+func _on_income_cycle_completed(total_income: float) -> void:
+	print("Income cycle completed: +$", total_income)
+	if effects_manager and total_income > 0:
+		# Create floating text at a central location
+		var center = Vector2(map_width * grid_size / 2, 100)
+		effects_manager.create_floating_text(center, total_income, true)
+
 func _on_district_clicked(district_id: int) -> void:
 	print("District clicked: ", district_id)
 
 func _on_game_paused(is_paused: bool) -> void:
 	set_process(!is_paused)
+	if income_manager:
+		if is_paused:
+			income_manager.pause_income()
+		else:
+			income_manager.resume_income()
+
+func _on_day_night_changed(is_day: bool) -> void:
+	# Visual feedback for day/night cycle
+	var tween = create_tween()
+	if is_day:
+		tween.tween_property(camera, "modulate", Color.WHITE, 2.0)
+		EventBus.notify("Dawn breaks over the city", "info")
+	else:
+		tween.tween_property(camera, "modulate", Color(0.7, 0.7, 1.0), 2.0)
+		EventBus.notify("Night falls - clubs are more profitable!", "info")
+
+func _on_cycle_changed(is_day: bool) -> void:
+	# Update building visuals based on day/night
+	for building in buildings_container.get_children():
+		if building.has_method("on_cycle_changed"):
+			building.on_cycle_changed(is_day)

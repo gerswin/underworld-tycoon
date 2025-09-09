@@ -6,7 +6,7 @@ signal cycle_changed(is_day: bool)
 
 var current_hour: int = 6  # Start at 6 AM
 var current_day: int = 1
-var time_speed: float = 60.0  # 1 second = 1 minute in-game
+var time_speed: float = 30.0  # Faster for MVP testing - 1 second = 2 minutes in-game
 var accumulated_time: float = 0.0
 var is_paused: bool = false
 

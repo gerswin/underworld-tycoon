@@ -8,7 +8,7 @@ signal investigation_started()
 var global_heat: float = 0.0
 var heat_threshold_raid: float = 70.0
 var heat_threshold_audit: float = 50.0
-var heat_decay_rate: float = 0.5  # Por segundo
+var heat_decay_rate: float = 1.0  # Decay más rápido para mejor balance
 
 var heat_sources: Dictionary = {
 	"business_operation": 0.1,

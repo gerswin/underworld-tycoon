@@ -12,15 +12,15 @@ var products_inventory: Dictionary = {
 
 var business_types: Dictionary = {
 	"bar": {
-		"cost": 10000.0,
-		"base_income": 500.0,
+		"cost": 8000.0,  # Más barato para testing
+		"base_income": 800.0,  # Más ingresos para que sea más visible
 		"heat_generation": 1.0,
 		"build_time": 5.0,
 		"type": "front"
 	},
 	"club": {
-		"cost": 25000.0,
-		"base_income": 1500.0,
+		"cost": 18000.0,  # Más accesible
+		"base_income": 2000.0,  # Más rentable de noche
 		"heat_generation": 3.0,
 		"build_time": 10.0,
 		"type": "front"

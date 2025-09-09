@@ -4,8 +4,8 @@ signal money_changed(clean: float, dirty: float)
 signal transaction_completed(amount: float, is_clean: bool)
 signal laundering_completed(amount: float)
 
-var clean_money: float = 50000.0  # Presupuesto inicial de la ciudad
-var dirty_money: float = 0.0
+var clean_money: float = 75000.0  # Presupuesto inicial más alto para testing
+var dirty_money: float = 20000.0  # Dinero inicial sucio para empezar construyendo
 var laundering_rate: float = 0.3  # 30% de eficiencia de lavado
 var max_laundering_per_cycle: float = 10000.0
 
