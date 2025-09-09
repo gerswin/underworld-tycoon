@@ -23,6 +23,9 @@ var building_preview: Node2D
 var show_grid: bool = true
 var income_manager: IncomeManager
 var effects_manager: EffectsManager
+var building_plots: BuildingPlots
+var selected_plot_data: Dictionary = {}
+var plot_tooltip: PlotTooltip
 
 func _ready() -> void:
 	initialize_map()
@@ -30,7 +33,14 @@ func _ready() -> void:
 	setup_income_manager()
 	connect_signals()
 	GameManager.start_game()
+	show_initial_help()
 	print("Main scene initialized")
+
+func show_initial_help() -> void:
+	EventBus.notify("Welcome to Underworld Tycoon!", "success")
+	EventBus.notify("Use Tab to switch between Legal/Illegal panels", "info")
+	EventBus.notify("Click on colored squares to build businesses", "info")
+	EventBus.notify("Hover over plots for detailed information", "info")
 
 func initialize_map() -> void:
 	# Generate district visuals
@@ -39,9 +49,14 @@ func initialize_map() -> void:
 	# Generate roads
 	MapGenerator.generate_roads($World)
 	
-	# Generate grid overlay
+	# Generate grid overlay - initially hidden
 	grid_overlay = MapGenerator.generate_grid_overlay($World)
-	grid_overlay.visible = show_grid
+	grid_overlay.visible = false
+	
+	# Setup building plots system
+	building_plots = BuildingPlots.new()
+	building_plots.name = "BuildingPlots"
+	$World.add_child(building_plots)
 	
 	print("Map initialized: ", map_width, "x", map_height)
 
@@ -60,6 +75,10 @@ func setup_income_manager() -> void:
 	# Setup effects manager
 	effects_manager = EffectsManager.new()
 	add_child(effects_manager)
+	
+	# Setup plot tooltip
+	plot_tooltip = PlotTooltip.new()
+	$UI.add_child(plot_tooltip)
 
 func connect_signals() -> void:
 	EventBus.building_selected.connect(_on_building_selected)
@@ -67,6 +86,11 @@ func connect_signals() -> void:
 	GameManager.game_paused.connect(_on_game_paused)
 	GameManager.day_night_changed.connect(_on_day_night_changed)
 	TimeManager.cycle_changed.connect(_on_cycle_changed)
+	
+	# Connect building plots signals
+	if building_plots:
+		building_plots.plot_selected.connect(_on_plot_selected)
+		building_plots.plot_hovered.connect(_on_plot_hovered)
 
 func _process(delta: float) -> void:
 	handle_camera_movement(delta)
@@ -115,32 +139,56 @@ func start_building_placement(building_type: String) -> void:
 		selected_building_type = building_type
 		is_placing_building = true
 		current_tool = "build"
-		EventBus.notify("Placing " + building_type + ". Click to build, right-click to cancel.")
+		
+		# Show available plots for this building type
+		highlight_valid_plots(building_type)
+		
+		EventBus.notify("Select a plot to build " + building_type + ". Right-click to cancel.")
 	else:
 		EventBus.notify_error("Not enough dirty money to build " + building_type)
 
 func place_building() -> void:
-	var mouse_pos = get_global_mouse_position()
-	var grid_pos = world_to_grid(mouse_pos)
-	var world_pos = grid_to_world(grid_pos)
+	# This is now handled by plot selection
+	if selected_plot_data.size() > 0 and is_placing_building:
+		build_on_selected_plot()
+
+func build_on_selected_plot() -> void:
+	if !building_plots.is_plot_valid_for_building(selected_plot_data, selected_building_type):
+		EventBus.notify_error("Cannot build " + selected_building_type + " on this plot!")
+		return
 	
-	if is_valid_building_position(grid_pos):
-		var district_id = get_district_at_position(grid_pos)
-		var business = ShadowOps.build_business(selected_building_type, district_id, world_pos)
+	var cost = ShadowOps.business_types[selected_building_type]["cost"]
+	if Economy.spend_dirty_money(cost):
+		var business = ShadowOps.build_business(
+			selected_building_type, 
+			selected_plot_data["district_id"], 
+			selected_plot_data["world_pos"]
+		)
 		
 		if business.size() > 0:
-			Economy.spend_dirty_money(ShadowOps.business_types[selected_building_type]["cost"])
+			# Occupy the plot
+			building_plots.occupy_plot(selected_plot_data["id"], business)
+			
+			# Create building visual
 			create_building_visual(business)
-			CitySim.add_business_to_district(district_id, business)
+			CitySim.add_business_to_district(selected_plot_data["district_id"], business)
+			
 			EventBus.notify_success(selected_building_type.capitalize() + " built!")
 			EventBus.building_placed.emit(business)
-		
+			
 		cancel_building_placement()
+	else:
+		EventBus.notify_error("Not enough dirty money!")
 
 func cancel_building_placement() -> void:
 	is_placing_building = false
 	selected_building_type = ""
 	current_tool = ""
+	selected_plot_data = {}
+	
+	# Clear plot highlights
+	if building_plots:
+		clear_plot_highlights()
 	
 	if building_preview:
 		building_preview.queue_free()
@@ -292,3 +340,44 @@ func _on_cycle_changed(is_day: bool) -> void:
 	for building in buildings_container.get_children():
 		if building.has_method("on_cycle_changed"):
 			building.on_cycle_changed(is_day)
+
+func _on_plot_selected(plot_data: Dictionary) -> void:
+	selected_plot_data = plot_data
+	print("Plot selected in district: ", plot_data["district_id"])
+	
+	if is_placing_building:
+		# Try to build on selected plot
+		build_on_selected_plot()
+
+func _on_plot_hovered(plot_data: Dictionary) -> void:
+	if plot_tooltip:
+		plot_tooltip.show_plot_info(plot_data, selected_building_type)
+		plot_tooltip.update_position(get_global_mouse_position())
+
+func highlight_valid_plots(building_type: String) -> void:
+	if !building_plots:
+		return
+	
+	var available_plots = building_plots.get_available_plots()
+	for plot in available_plots:
+		if building_plots.is_plot_valid_for_building(plot, building_type):
+			building_plots.highlight_plot(plot, Color.GREEN)
+		else:
+			building_plots.highlight_plot(plot, Color.RED)
+
+func clear_plot_highlights() -> void:
+	if !building_plots:
+		return
+	
+	var all_plots = building_plots.plots
+	for plot in all_plots:
+		if !plot["is_occupied"]:
+			building_plots.unhighlight_plot(plot)
+
+func get_district_name(district_id: int) -> String:
+	match district_id:
+		0: return "Downtown"
+		1: return "Industrial"
+		2: return "Residential"
+		3: return "Waterfront"
+		_: return "Unknown"
