@@ -88,9 +88,10 @@ func create_grid_lines() -> void:
 		grid_lines.add_child(line)
 
 func setup_mouse_detection() -> void:
-	# Create invisible area for mouse detection
+	# Create invisible area for mouse detection with lower priority
 	var area = Area2D.new()
 	area.name = "MouseDetection"
+	area.priority = 1  # Lower priority than plot areas
 	
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
@@ -100,6 +101,10 @@ func setup_mouse_detection() -> void:
 	
 	area.add_child(collision)
 	grid_lines.add_child(area)
+	
+	# Set collision layer to avoid conflicts
+	area.collision_layer = 1  # World layer
+	area.collision_mask = 0
 	
 	# Connect mouse events
 	area.mouse_entered.connect(_on_grid_mouse_entered)

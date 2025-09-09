@@ -128,8 +128,9 @@ func create_plot_visual(plot_data: Dictionary, color: Color) -> void:
 	
 	plot_visual.add_child(border)
 	
-	# Add interaction area
+	# Add interaction area with higher priority
 	var area = Area2D.new()
+	area.priority = 10  # Higher priority than other areas
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
 	shape.size = Vector2(PLOT_SIZE, PLOT_SIZE)
@@ -139,21 +140,30 @@ func create_plot_visual(plot_data: Dictionary, color: Color) -> void:
 	
 	# Store plot data in the visual
 	plot_visual.set_meta("plot_data", plot_data)
+	area.set_meta("plot_data", plot_data)
 	
 	# Connect signals with proper binding
 	area.input_event.connect(_on_area_input_event.bind(plot_data))
 	area.mouse_entered.connect(_on_plot_hovered.bind(plot_data))
 	area.mouse_exited.connect(_on_plot_exited.bind(plot_data))
 	
+	# Ensure area is on correct collision layer
+	area.collision_layer = 4  # Buildings layer
+	area.collision_mask = 0
+	
 	add_child(plot_visual)
 	plot_visuals.append(plot_visual)
 
 
 func _on_area_input_event(plot_data: Dictionary, _viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	print("Plot input event received: ", event, " for plot: ", plot_data["id"])
 	if event.is_action_pressed("left_click"):
+		print("Left click detected on plot: ", plot_data["id"])
 		select_plot(plot_data)
+		get_viewport().set_input_as_handled()  # Consume the event
 
 func _on_plot_hovered(plot_data: Dictionary) -> void:
+	print("Plot hovered: ", plot_data["id"])
 	plot_hovered.emit(plot_data)
 	highlight_plot(plot_data, Color.YELLOW)
 
@@ -167,13 +177,25 @@ func _on_plot_exited(plot_data: Dictionary) -> void:
 		main_scene.plot_tooltip.hide_tooltip()
 
 func select_plot(plot_data: Dictionary) -> void:
+	print("Selecting plot: ", plot_data["id"])
+	
 	# Clear previous selection
 	if selected_plot.size() > 0:
 		unhighlight_plot(selected_plot)
 	
 	selected_plot = plot_data
 	highlight_plot(plot_data, Color.GREEN)
+	
+	print("Plot selected, emitting signal...")
 	plot_selected.emit(plot_data)
+	
+	# Force immediate visual update
+	var plot_visual = get_plot_visual(plot_data["id"])
+	if plot_visual:
+		print("Plot visual found and updating color")
+		var rect = plot_visual.get_child(0) as ColorRect
+		if rect:
+			rect.modulate = Color.GREEN
 
 func highlight_plot(plot_data: Dictionary, color: Color) -> void:
 	var plot_visual = get_plot_visual(plot_data["id"])

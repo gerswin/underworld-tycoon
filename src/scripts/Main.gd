@@ -47,12 +47,13 @@ func initialize_map() -> void:
 	# Generate roads
 	MapGenerator.generate_roads($World)
 	
-	# Setup enhanced grid system
+	# Setup enhanced grid system (initially hidden to avoid conflicts)
 	enhanced_grid = EnhancedGrid.new()
 	enhanced_grid.name = "EnhancedGrid"
 	enhanced_grid.grid_size = grid_size
 	enhanced_grid.map_width = map_width
 	enhanced_grid.map_height = map_height
+	enhanced_grid.visible = false
 	$World.add_child(enhanced_grid)
 	
 	# Setup building plots system
