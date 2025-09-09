@@ -102,8 +102,8 @@ func setup_mouse_detection() -> void:
 	area.add_child(collision)
 	grid_lines.add_child(area)
 	
-	# Set collision layer to avoid conflicts
-	area.collision_layer = 1  # World layer
+	# Set collision layer to avoid conflicts (use layer 1 which is World)
+	area.collision_layer = 1  # World layer (matches project settings)  
 	area.collision_mask = 0
 	
 	# Connect mouse events

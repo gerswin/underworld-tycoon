@@ -30,6 +30,7 @@ var enhanced_grid: EnhancedGrid
 var construction_manager: ConstructionManager
 var notification_history: NotificationHistory
 var notification_panel: NotificationPanel
+var mission_system: MissionSystem
 
 func _ready() -> void:
 	initialize_map()
@@ -98,6 +99,10 @@ func setup_income_manager() -> void:
 	# Setup notification panel
 	notification_panel = NotificationPanel.new()
 	$UI.add_child(notification_panel)
+	
+	# Setup mission system
+	mission_system = MissionSystem.new()
+	add_child(mission_system)
 
 func connect_signals() -> void:
 	EventBus.building_selected.connect(_on_building_selected)
@@ -121,8 +126,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		zoom_camera(zoom_speed)
 	elif event.is_action_pressed("zoom_out"):
 		zoom_camera(-zoom_speed)
-	elif event.is_action_pressed("left_click"):
-		handle_left_click()
 	elif event.is_action_pressed("right_click"):
 		cancel_building_placement()
 	
@@ -138,6 +141,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_ESCAPE:
 				if event.pressed and is_placing_building:
 					cancel_building_placement()
+	
+	# Don't handle left clicks in _unhandled_input - let building plots handle them
+	# This prevents Main from intercepting clicks before they reach the Area2D nodes
 
 func handle_camera_movement(delta: float) -> void:
 	var direction = Vector2.ZERO

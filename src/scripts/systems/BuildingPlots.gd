@@ -13,6 +13,10 @@ const PLOTS_PER_DISTRICT = 12  # 3x4 grid per district
 
 func _ready() -> void:
 	generate_building_plots()
+	# Enable processing for alternative input detection with higher priority
+	set_process_unhandled_input(true)
+	# Also enable regular input processing
+	set_process_input(true)
 
 func generate_building_plots() -> void:
 	var districts_data = [
@@ -22,8 +26,8 @@ func generate_building_plots() -> void:
 		{"id": 3, "name": "Waterfront", "color": Color(0.2, 0.3, 0.4, 0.3)}
 	]
 	
-	var half_width = 50  # Half of map width in tiles
-	var half_height = 50  # Half of map height in tiles
+	var _half_width = 50  # Half of map width in tiles
+	var _half_height = 50  # Half of map height in tiles
 	
 	for district in districts_data:
 		var district_id = district["id"]
@@ -66,13 +70,13 @@ func generate_district_plots(district_id: int, color: Color) -> Array[Dictionary
 	# Create a grid of plots in each district
 	var plots_per_row = 4
 	var plots_per_col = 3
-	var spacing_x = (end_x - start_x) / plots_per_row
-	var spacing_y = (end_y - start_y) / plots_per_col
+	var spacing_x = float(end_x - start_x) / plots_per_row
+	var spacing_y = float(end_y - start_y) / plots_per_col
 	
 	for row in range(plots_per_col):
 		for col in range(plots_per_row):
-			var plot_x = start_x + (col * spacing_x) + (spacing_x / 2)
-			var plot_y = start_y + (row * spacing_y) + (spacing_y / 2)
+			var plot_x = start_x + (col * spacing_x) + (spacing_x / 2.0)
+			var plot_y = start_y + (row * spacing_y) + (spacing_y / 2.0)
 			
 			var plot_data = {
 				"id": plots.size() + district_plots.size(),
@@ -130,10 +134,16 @@ func create_plot_visual(plot_data: Dictionary, color: Color) -> void:
 	
 	# Add interaction area with higher priority
 	var area = Area2D.new()
+	area.name = "PlotArea_" + str(plot_data["id"])
 	area.priority = 10  # Higher priority than other areas
+	area.monitorable = true
+	area.monitoring = true
+	# Enable input processing
+	area.set_pickable(true)
+	
 	var collision = CollisionShape2D.new()
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(PLOT_SIZE, PLOT_SIZE)
+	shape.size = Vector2(PLOT_SIZE * 0.9, PLOT_SIZE * 0.9)  # Slightly smaller to avoid overlaps
 	collision.shape = shape
 	area.add_child(collision)
 	plot_visual.add_child(area)
@@ -147,8 +157,8 @@ func create_plot_visual(plot_data: Dictionary, color: Color) -> void:
 	area.mouse_entered.connect(_on_plot_hovered.bind(plot_data))
 	area.mouse_exited.connect(_on_plot_exited.bind(plot_data))
 	
-	# Ensure area is on correct collision layer
-	area.collision_layer = 4  # Buildings layer
+	# Ensure area is on correct collision layer (use layer 2 which is Buildings)
+	area.collision_layer = 2  # Buildings layer (matches project settings)
 	area.collision_mask = 0
 	
 	add_child(plot_visual)
@@ -266,3 +276,55 @@ func is_plot_valid_for_building(plot_data: Dictionary, building_type: String) ->
 			return district_id != 1
 		_:
 			return true
+
+func _input(event: InputEvent) -> void:
+	# Handle input with higher priority than _unhandled_input
+	if event.is_action_pressed("left_click"):
+		print("Input left click detected at: ", event.position)
+		var handled = check_plot_click_at_position_immediate(event.position)
+		if handled:
+			get_viewport().set_input_as_handled()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("left_click"):
+		print("Unhandled left click detected at: ", event.position)  
+		check_plot_click_at_position(event.position)
+
+func check_plot_click_at_position(_screen_pos: Vector2) -> void:
+	# Convert screen position to world position
+	var world_pos = get_global_mouse_position()
+	print("Checking for plot at world position: ", world_pos)
+	
+	# Find closest plot
+	var closest_plot = find_plot_at_position(world_pos)
+	if closest_plot.size() > 0:
+		print("Found plot at position: ", closest_plot["id"])
+		select_plot(closest_plot)
+		get_viewport().set_input_as_handled()
+
+func check_plot_click_at_position_immediate(_screen_pos: Vector2) -> bool:
+	# Convert screen position to world position
+	var world_pos = get_global_mouse_position()
+	print("Immediate click check at world position: ", world_pos)
+	
+	# Find closest plot
+	var closest_plot = find_plot_at_position(world_pos)
+	if closest_plot.size() > 0:
+		print("Found plot at position (immediate): ", closest_plot["id"])
+		select_plot(closest_plot)
+		return true
+	return false
+
+func find_plot_at_position(world_pos: Vector2) -> Dictionary:
+	var min_distance = 999999.0
+	var closest_plot = {}
+	
+	for plot in plots:
+		var plot_world_pos = plot.get("world_pos", Vector2.ZERO)
+		var distance = world_pos.distance_to(plot_world_pos)
+		if distance < min_distance and distance < PLOT_SIZE:
+			min_distance = distance
+			closest_plot = plot
+	
+	return closest_plot
+
