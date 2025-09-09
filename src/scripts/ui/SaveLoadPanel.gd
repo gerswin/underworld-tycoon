@@ -75,15 +75,17 @@ func show_save_panel() -> void:
 	current_mode = "save"
 	title_label.text = "Save Game"
 	mode_label.text = "Select a slot to save your game"
-	refresh_save_slots()
 	show_panel()
+	# Refresh after panel is shown to avoid initialization conflicts
+	call_deferred("refresh_save_slots")
 
 func show_load_panel() -> void:
 	current_mode = "load"
 	title_label.text = "Load Game"
 	mode_label.text = "Select a save to load"
-	refresh_save_slots()
 	show_panel()
+	# Refresh after panel is shown to avoid initialization conflicts
+	call_deferred("refresh_save_slots")
 
 func show_panel() -> void:
 	visible = true

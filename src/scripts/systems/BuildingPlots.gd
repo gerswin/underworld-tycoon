@@ -278,12 +278,14 @@ func is_plot_valid_for_building(plot_data: Dictionary, building_type: String) ->
 			return true
 
 func _input(event: InputEvent) -> void:
-	# Handle input with higher priority than _unhandled_input
+	# Only handle input if we're in building mode or the click is over a plot
 	if event.is_action_pressed("left_click"):
-		print("Input left click detected at: ", event.position)
-		var handled = check_plot_click_at_position_immediate(event.position)
-		if handled:
-			get_viewport().set_input_as_handled()
+		var main_scene = get_tree().get_root().get_node_or_null("Main")
+		if main_scene and main_scene.is_placing_building:
+			print("Input left click detected during building mode at: ", event.position)
+			var handled = check_plot_click_at_position_immediate(event.position)
+			if handled:
+				get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("left_click"):

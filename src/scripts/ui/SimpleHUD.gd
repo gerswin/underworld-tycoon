@@ -81,9 +81,13 @@ func connect_signals() -> void:
 func setup_buttons_safe() -> void:
 	# Setup buttons by finding them by name
 	for button in all_buttons:
-		setup_individual_button(button)
+		if button and is_instance_valid(button):
+			setup_individual_button(button)
 
 func setup_individual_button(button: Button) -> void:
+	if not button or not is_instance_valid(button):
+		return
+		
 	var button_name = button.name.to_lower()
 	
 	# Speed buttons
@@ -308,6 +312,7 @@ func format_money(amount: float) -> String:
 	else:
 		return str(int(amount))
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_panel") and tab_container:
 		tab_container.current_tab = (tab_container.current_tab + 1) % tab_container.get_tab_count()
+		get_viewport().set_input_as_handled()
