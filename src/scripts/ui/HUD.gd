@@ -30,6 +30,14 @@ extends Control
 var notification_scene = preload("res://src/scenes/ui/Notification.tscn")
 
 func _ready() -> void:
+	# Add safety checks for node references
+	if !clean_money_label:
+		print("Warning: clean_money_label not found")
+		return
+	if !dirty_money_label:
+		print("Warning: dirty_money_label not found")
+		return
+	
 	connect_signals()
 	setup_buttons()
 	update_display()
@@ -51,32 +59,49 @@ func connect_signals() -> void:
 	# EventBus signals
 	EventBus.ui_notification.connect(_on_notification)
 	
-	# Speed buttons
-	pause_button.pressed.connect(_on_pause_pressed)
-	speed_1x_button.pressed.connect(func(): GameManager.set_game_speed(1.0))
-	speed_2x_button.pressed.connect(func(): GameManager.set_game_speed(2.0))
-	speed_3x_button.pressed.connect(func(): GameManager.set_game_speed(3.0))
+	# Speed buttons - with safety checks
+	if pause_button:
+		pause_button.pressed.connect(_on_pause_pressed)
+	if speed_1x_button:
+		speed_1x_button.pressed.connect(func(): GameManager.set_game_speed(1.0))
+	if speed_2x_button:
+		speed_2x_button.pressed.connect(func(): GameManager.set_game_speed(2.0))
+	if speed_3x_button:
+		speed_3x_button.pressed.connect(func(): GameManager.set_game_speed(3.0))
 	
-	# Legal service buttons
-	garbage_button.pressed.connect(func(): invest_in_service("garbage"))
-	transport_button.pressed.connect(func(): invest_in_service("transport"))
-	police_button.pressed.connect(func(): invest_in_service("police"))
-	public_works_button.pressed.connect(func(): invest_in_service("public_works"))
+	# Legal service buttons - with safety checks
+	if garbage_button:
+		garbage_button.pressed.connect(func(): invest_in_service("garbage"))
+	if transport_button:
+		transport_button.pressed.connect(func(): invest_in_service("transport"))
+	if police_button:
+		police_button.pressed.connect(func(): invest_in_service("police"))
+	if public_works_button:
+		public_works_button.pressed.connect(func(): invest_in_service("public_works"))
 	
-	# Illegal business buttons
-	bar_button.pressed.connect(func(): start_building("bar"))
-	club_button.pressed.connect(func(): start_building("club"))
-	workshop_button.pressed.connect(func(): start_building("workshop"))
-	ngo_button.pressed.connect(func(): start_building("ngo"))
-	launder_button.pressed.connect(_on_launder_pressed)
+	# Illegal business buttons - with safety checks
+	if bar_button:
+		bar_button.pressed.connect(func(): start_building("bar"))
+	if club_button:
+		club_button.pressed.connect(func(): start_building("club"))
+	if workshop_button:
+		workshop_button.pressed.connect(func(): start_building("workshop"))
+	if ngo_button:
+		ngo_button.pressed.connect(func(): start_building("ngo"))
+	if launder_button:
+		launder_button.pressed.connect(_on_launder_pressed)
 
 func setup_buttons() -> void:
-	# Set toggle mode for speed buttons
-	pause_button.toggle_mode = true
-	speed_1x_button.toggle_mode = true
-	speed_2x_button.toggle_mode = true
-	speed_3x_button.toggle_mode = true
-	speed_1x_button.button_pressed = true
+	# Set toggle mode for speed buttons - with safety checks
+	if pause_button:
+		pause_button.toggle_mode = true
+	if speed_1x_button:
+		speed_1x_button.toggle_mode = true
+		speed_1x_button.button_pressed = true
+	if speed_2x_button:
+		speed_2x_button.toggle_mode = true
+	if speed_3x_button:
+		speed_3x_button.toggle_mode = true
 
 func update_display() -> void:
 	_on_money_changed(Economy.clean_money, Economy.dirty_money)
@@ -85,43 +110,50 @@ func update_display() -> void:
 	_update_time_display()
 
 func _on_money_changed(clean: float, dirty: float) -> void:
-	clean_money_label.text = "Clean: $" + format_money(clean)
-	dirty_money_label.text = "Dirty: $" + format_money(dirty)
+	if clean_money_label:
+		clean_money_label.text = "Clean: $" + format_money(clean)
+	if dirty_money_label:
+		dirty_money_label.text = "Dirty: $" + format_money(dirty)
 	
 	# Update button states based on available money
 	update_button_affordability()
 
 func _on_approval_changed(approval: float) -> void:
-	approval_label.text = "Approval: " + str(int(approval)) + "%"
+	if approval_label:
+		approval_label.text = "Approval: " + str(int(approval)) + "%"
 	
-	if approval < 30:
-		approval_label.modulate = Color.RED
-	elif approval < 50:
-		approval_label.modulate = Color.YELLOW
-	else:
-		approval_label.modulate = Color.GREEN
+	if approval_label:
+		if approval < 30:
+			approval_label.modulate = Color.RED
+		elif approval < 50:
+			approval_label.modulate = Color.YELLOW
+		else:
+			approval_label.modulate = Color.GREEN
 
 func _on_heat_changed(heat: float) -> void:
-	heat_label.text = "Heat: " + str(int(heat)) + "%"
-	
-	if heat > 70:
-		heat_label.modulate = Color.RED
-	elif heat > 50:
-		heat_label.modulate = Color.ORANGE
-	elif heat > 30:
-		heat_label.modulate = Color.YELLOW
-	else:
-		heat_label.modulate = Color.WHITE
+	if heat_label:
+		heat_label.text = "Heat: " + str(int(heat)) + "%"
+		
+		if heat > 70:
+			heat_label.modulate = Color.RED
+		elif heat > 50:
+			heat_label.modulate = Color.ORANGE
+		elif heat > 30:
+			heat_label.modulate = Color.YELLOW
+		else:
+			heat_label.modulate = Color.WHITE
 
 func _on_hour_passed(hour: int) -> void:
 	_update_time_display()
 
 func _update_time_display() -> void:
-	time_label.text = TimeManager.get_formatted_date()
+	if time_label:
+		time_label.text = TimeManager.get_formatted_date()
 
 func _on_pause_pressed() -> void:
-	GameManager.pause_game(pause_button.button_pressed)
-	pause_button.text = "▶" if pause_button.button_pressed else "⏸"
+	if pause_button:
+		GameManager.pause_game(pause_button.button_pressed)
+		pause_button.text = "▶" if pause_button.button_pressed else "⏸"
 
 func invest_in_service(service: String) -> void:
 	var cost = CitySim.public_services[service]["cost"]
@@ -148,23 +180,31 @@ func _on_laundering_completed(amount: float) -> void:
 	RiskSystem.add_heat(amount / 1000.0, "laundering")
 
 func update_button_affordability() -> void:
-	# Update legal service buttons
-	garbage_button.disabled = Economy.clean_money < CitySim.public_services["garbage"]["cost"]
-	transport_button.disabled = Economy.clean_money < CitySim.public_services["transport"]["cost"]
-	police_button.disabled = Economy.clean_money < CitySim.public_services["police"]["cost"]
-	public_works_button.disabled = Economy.clean_money < CitySim.public_services["public_works"]["cost"]
+	# Update legal service buttons with safety checks
+	if garbage_button:
+		garbage_button.disabled = Economy.clean_money < CitySim.public_services["garbage"]["cost"]
+	if transport_button:
+		transport_button.disabled = Economy.clean_money < CitySim.public_services["transport"]["cost"]
+	if police_button:
+		police_button.disabled = Economy.clean_money < CitySim.public_services["police"]["cost"]
+	if public_works_button:
+		public_works_button.disabled = Economy.clean_money < CitySim.public_services["public_works"]["cost"]
 	
-	# Update illegal business buttons
-	bar_button.disabled = Economy.dirty_money < ShadowOps.business_types["bar"]["cost"]
-	club_button.disabled = Economy.dirty_money < ShadowOps.business_types["club"]["cost"]
-	workshop_button.disabled = Economy.dirty_money < ShadowOps.business_types["workshop"]["cost"]
-	ngo_button.disabled = Economy.dirty_money < ShadowOps.business_types["ngo"]["cost"]
+	# Update illegal business buttons with safety checks
+	if bar_button:
+		bar_button.disabled = Economy.dirty_money < ShadowOps.business_types["bar"]["cost"]
+	if club_button:
+		club_button.disabled = Economy.dirty_money < ShadowOps.business_types["club"]["cost"]
+	if workshop_button:
+		workshop_button.disabled = Economy.dirty_money < ShadowOps.business_types["workshop"]["cost"]
+	if ngo_button:
+		ngo_button.disabled = Economy.dirty_money < ShadowOps.business_types["ngo"]["cost"]
 
 func _on_notification(message: String, type: String) -> void:
 	show_notification(message, type)
 
 func show_notification(text: String, type: String = "info") -> void:
-	if notification_scene:
+	if notification_scene and notification_container:
 		var notification = notification_scene.instantiate()
 		notification.setup(text, type)
 		notification_container.add_child(notification)
@@ -185,5 +225,5 @@ func format_money(amount: float) -> String:
 		return str(int(amount))
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("toggle_panel"):
+	if event.is_action_pressed("toggle_panel") and tab_container:
 		tab_container.current_tab = (tab_container.current_tab + 1) % tab_container.get_tab_count()
