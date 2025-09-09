@@ -27,7 +27,7 @@ extends Control
 @onready var ngo_button: Button = $BottomPanel/TabContainer/Illegal/IllegalButtons/NGOButton
 @onready var launder_button: Button = $BottomPanel/TabContainer/Illegal/IllegalButtons/LaunderButton
 
-var notification_scene = preload("res://src/scenes/ui/Notification.tscn") if ResourceLoader.exists("res://src/scenes/ui/Notification.tscn") else null
+var notification_scene = preload("res://src/scenes/ui/Notification.tscn")
 
 func _ready() -> void:
 	connect_signals()
@@ -164,33 +164,17 @@ func _on_notification(message: String, type: String) -> void:
 	show_notification(message, type)
 
 func show_notification(text: String, type: String = "info") -> void:
-	var notification = Label.new()
-	notification.text = text
-	notification.add_theme_font_size_override("font_size", 14)
-	
-	match type:
-		"success":
-			notification.modulate = Color.GREEN
-		"warning":
-			notification.modulate = Color.YELLOW
-		"error":
-			notification.modulate = Color.RED
-		_:
-			notification.modulate = Color.WHITE
-	
-	notification_container.add_child(notification)
-	
-	# Auto-remove after 3 seconds
-	var timer = Timer.new()
-	timer.wait_time = 3.0
-	timer.one_shot = true
-	timer.timeout.connect(func(): notification.queue_free())
-	notification.add_child(timer)
-	timer.start()
-	
-	# Limit notifications to 5
-	while notification_container.get_child_count() > 5:
-		notification_container.get_child(0).queue_free()
+	if notification_scene:
+		var notification = notification_scene.instantiate()
+		notification.setup(text, type)
+		notification_container.add_child(notification)
+		
+		# Limit notifications to 5
+		while notification_container.get_child_count() > 5:
+			notification_container.get_child(0).queue_free()
+	else:
+		# Fallback if scene not available
+		print("[", type.to_upper(), "] ", text)
 
 func format_money(amount: float) -> String:
 	if amount >= 1000000:
