@@ -8,10 +8,34 @@ var city_approval: float = 60.0
 var districts: Array[Dictionary] = []
 
 var public_services: Dictionary = {
-	"garbage": {"quality": 50.0, "cost": 1000.0, "importance": 0.2},
-	"transport": {"quality": 50.0, "cost": 1500.0, "importance": 0.3},
-	"police": {"quality": 50.0, "cost": 2000.0, "importance": 0.3},
-	"public_works": {"quality": 50.0, "cost": 2500.0, "importance": 0.2}
+	"garbage": {
+		"quality": 50.0, 
+		"cost": 1000.0, 
+		"importance": 0.2,
+		"effect": "prosperity",
+		"bonus_multiplier": 1.2
+	},
+	"transport": {
+		"quality": 50.0, 
+		"cost": 1500.0, 
+		"importance": 0.3,
+		"effect": "business_income",
+		"bonus_multiplier": 1.15
+	},
+	"police": {
+		"quality": 50.0, 
+		"cost": 2000.0, 
+		"importance": 0.3,
+		"effect": "heat_reduction",
+		"bonus_multiplier": 0.8
+	},
+	"public_works": {
+		"quality": 50.0, 
+		"cost": 2500.0, 
+		"importance": 0.2,
+		"effect": "approval_bonus",
+		"bonus_multiplier": 1.3
+	}
 }
 
 func _ready() -> void:
@@ -84,6 +108,53 @@ func get_district_info(district_id: int) -> Dictionary:
 	if district_id >= 0 and district_id < districts.size():
 		return districts[district_id]
 	return {}
+
+func get_service_multiplier(service: String) -> float:
+	if service in public_services:
+		var quality = public_services[service]["quality"]
+		var multiplier = public_services[service]["bonus_multiplier"]
+		# Quality affects how much of the multiplier is applied
+		var effectiveness = quality / 100.0
+		return 1.0 + (multiplier - 1.0) * effectiveness
+	return 1.0
+
+func get_transport_income_bonus() -> float:
+	return get_service_multiplier("transport")
+
+func get_police_heat_reduction() -> float:
+	var police_quality = public_services["police"]["quality"]
+	# Better police = more heat reduction
+	return police_quality / 100.0 * 0.5  # Up to 50% heat reduction
+
+func get_public_works_approval_bonus() -> float:
+	var works_quality = public_services["public_works"]["quality"]
+	# Better public works = more approval
+	return works_quality / 100.0 * 20.0  # Up to +20 approval
+
+func get_garbage_prosperity_bonus() -> float:
+	return get_service_multiplier("garbage")
+
+func apply_service_effects() -> void:
+	# Apply transport effects to business income
+	var transport_bonus = get_transport_income_bonus()
+	if Economy:
+		Economy.set_income_multiplier("transport", transport_bonus)
+	
+	# Apply police effects to heat reduction
+	var heat_reduction = get_police_heat_reduction()
+	if RiskSystem:
+		RiskSystem.set_heat_reduction_multiplier(heat_reduction)
+	
+	# Apply public works to approval
+	var approval_bonus = get_public_works_approval_bonus()
+	
+	# Apply garbage to district prosperity
+	var prosperity_bonus = get_garbage_prosperity_bonus()
+	for district in districts:
+		district["prosperity"] = clamp(district["prosperity"] * prosperity_bonus, 0.0, 100.0)
+	
+	# Recalculate approval with new bonuses
+	calculate_approval()
 
 func update_district_heat(district_id: int, heat_change: float) -> void:
 	if district_id >= 0 and district_id < districts.size():

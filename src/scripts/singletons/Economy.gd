@@ -12,7 +12,9 @@ var max_laundering_per_cycle: float = 10000.0
 var income_multipliers: Dictionary = {
 	"festival": 1.5,
 	"crisis": 0.7,
-	"normal": 1.0
+	"normal": 1.0,
+	"transport": 1.0,  # Will be updated by CitySim
+	"current": 1.0
 }
 
 func _ready() -> void:
@@ -88,6 +90,18 @@ func get_financial_report() -> Dictionary:
 func set_laundering_capacity(ngo_level: int) -> void:
 	laundering_rate = 0.3 + (ngo_level * 0.1)
 	max_laundering_per_cycle = 10000.0 + (ngo_level * 5000.0)
+
+func set_income_multiplier(source: String, multiplier: float) -> void:
+	income_multipliers[source] = multiplier
+	update_current_multiplier()
+
+func update_current_multiplier() -> void:
+	var total_multiplier = 1.0
+	# Combine all multipliers except "current"
+	for key in income_multipliers:
+		if key != "current":
+			total_multiplier *= income_multipliers[key]
+	income_multipliers["current"] = total_multiplier
 
 func get_save_data() -> Dictionary:
 	return {

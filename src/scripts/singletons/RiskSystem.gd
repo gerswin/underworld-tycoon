@@ -9,6 +9,7 @@ var global_heat: float = 0.0
 var heat_threshold_raid: float = 70.0
 var heat_threshold_audit: float = 50.0
 var heat_decay_rate: float = 1.0  # Decay más rápido para mejor balance
+var police_heat_reduction: float = 0.0  # Bonus from police investment
 
 var heat_sources: Dictionary = {
 	"business_operation": 0.1,
@@ -42,7 +43,11 @@ func reduce_heat(amount: float) -> void:
 
 func decay_heat(delta: float) -> void:
 	if global_heat > 0:
-		reduce_heat(heat_decay_rate * delta)
+		var total_reduction = heat_decay_rate + police_heat_reduction
+		reduce_heat(total_reduction * delta)
+
+func set_heat_reduction_multiplier(reduction_bonus: float) -> void:
+	police_heat_reduction = reduction_bonus
 
 func check_heat_thresholds() -> void:
 	if global_heat >= heat_threshold_raid:

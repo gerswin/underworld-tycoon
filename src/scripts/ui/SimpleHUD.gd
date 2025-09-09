@@ -208,9 +208,30 @@ func invest_in_service(service: String) -> void:
 	var cost = CitySim.public_services[service]["cost"]
 	if Economy.spend_clean_money(cost):
 		CitySim.update_service_quality(service, cost)
-		EventBus.notify_success("Invested in " + service)
+		CitySim.apply_service_effects()  # Apply the effects immediately
+		
+		# Show detailed feedback about the investment effects
+		var effect_message = get_investment_effect_message(service)
+		EventBus.notify_success("Invested in " + service + " - " + effect_message)
 	else:
 		EventBus.notify_error("Not enough clean money")
+
+func get_investment_effect_message(service: String) -> String:
+	match service:
+		"transport":
+			var bonus = (CitySim.get_transport_income_bonus() - 1.0) * 100
+			return "Business income +" + str(int(bonus)) + "%"
+		"police":
+			var reduction = CitySim.get_police_heat_reduction() * 100
+			return "Heat reduction +" + str(int(reduction)) + "%"
+		"public_works":
+			var approval = CitySim.get_public_works_approval_bonus()
+			return "City approval +" + str(int(approval))
+		"garbage":
+			var prosperity = (CitySim.get_garbage_prosperity_bonus() - 1.0) * 100
+			return "District prosperity +" + str(int(prosperity)) + "%"
+		_:
+			return "Service quality improved"
 
 func start_building(building_type: String) -> void:
 	var main_scene = get_tree().get_root().get_node_or_null("Main")
