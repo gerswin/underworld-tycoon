@@ -17,12 +17,12 @@ func _ready() -> void:
 	setup_panel()
 	setup_controls()
 	
-	# Find or create notification history
+	# Find existing notification history (should be created by Main.gd)
 	notification_history = get_tree().get_first_node_in_group("notification_history")
 	if !notification_history:
-		notification_history = NotificationHistory.new()
-		notification_history.add_to_group("notification_history")
-		get_tree().root.add_child(notification_history)
+		push_warning("NotificationHistory not found! Main.gd should create it first.")
+		# Don't create a duplicate, just disable this panel
+		return
 	
 	notification_history.notification_added.connect(_on_notification_added)
 	

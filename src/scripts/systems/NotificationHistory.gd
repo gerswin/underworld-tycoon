@@ -31,7 +31,7 @@ func add_notification(message: String, type: String) -> void:
 	while notifications.size() > max_history:
 		notifications.pop_front()
 	
-	print("[HISTORY] ", type.to_upper(), ": ", message)
+	# print("[HISTORY] ", type.to_upper(), ": ", message)  # Disabled for debugging
 
 func get_recent_notifications(count: int = 10) -> Array[Dictionary]:
 	var recent: Array[Dictionary] = []

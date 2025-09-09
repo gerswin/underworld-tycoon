@@ -13,6 +13,7 @@ func _ready() -> void:
 func notify(message: String, type: String = "info") -> void:
 	ui_notification.emit(message, type)
 	print("[", type.to_upper(), "] ", message)
+	print("DEBUG: ui_notification has ", ui_notification.get_connections().size(), " connections")
 
 func notify_success(message: String) -> void:
 	notify(message, "success")
