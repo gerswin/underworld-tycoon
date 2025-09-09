@@ -12,13 +12,14 @@ var tab_container: TabContainer
 var notification_container: VBoxContainer
 
 var all_buttons: Array[Button] = []
+var _connected_to_eventbus: bool = false
 
 func _ready() -> void:
 	setup_ui_references()
 	connect_signals()
 	setup_buttons_safe()
 	update_display()
-	print("SimpleHUD initialized")
+	print("SimpleHUD initialized - Instance: ", get_instance_id())
 
 func setup_ui_references() -> void:
 	# Find UI elements dynamically instead of using @onready
@@ -55,6 +56,11 @@ func find_buttons_recursive(node: Node) -> void:
 		find_buttons_recursive(child)
 
 func connect_signals() -> void:
+	# Prevent duplicate connections
+	if _connected_to_eventbus:
+		print("SimpleHUD: Skipping signal connections (already connected)")
+		return
+		
 	# System signals
 	if Economy:
 		if !Economy.money_changed.is_connected(_on_money_changed):
@@ -77,6 +83,10 @@ func connect_signals() -> void:
 	if EventBus:
 		if !EventBus.ui_notification.is_connected(_on_notification):
 			EventBus.ui_notification.connect(_on_notification)
+			print("SimpleHUD: Connected to ui_notification")
+			_connected_to_eventbus = true
+		else:
+			print("SimpleHUD: Already connected to ui_notification")
 
 func setup_buttons_safe() -> void:
 	# Setup buttons by finding them by name
@@ -272,8 +282,6 @@ func _on_notification(message: String, type: String) -> void:
 	show_notification(message, type)
 
 func show_notification(text: String, type: String = "info") -> void:
-	print("[", type.to_upper(), "] ", text)
-	
 	# Simple fallback notification
 	if notification_container:
 		var label = Label.new()

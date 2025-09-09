@@ -5,11 +5,22 @@ signal notification_added(notification: Dictionary)
 
 var notifications: Array[Dictionary] = []
 var max_history: int = 100
+var _connected_to_eventbus: bool = false
 
 func _ready() -> void:
+	# Prevent duplicate connections
+	if _connected_to_eventbus:
+		print("NotificationHistory: Skipping connection (already connected)")
+		return
+		
 	# Connect to EventBus to capture all notifications
 	if EventBus:
-		EventBus.ui_notification.connect(_on_notification_received)
+		if !EventBus.ui_notification.is_connected(_on_notification_received):
+			EventBus.ui_notification.connect(_on_notification_received)
+			print("NotificationHistory: Connected to ui_notification")
+			_connected_to_eventbus = true
+		else:
+			print("NotificationHistory: Already connected to ui_notification")
 	print("NotificationHistory initialized")
 
 func _on_notification_received(message: String, type: String) -> void:
