@@ -26,6 +26,10 @@ var effects_manager: EffectsManager
 var building_plots: BuildingPlots
 var selected_plot_data: Dictionary = {}
 var plot_tooltip: PlotTooltip
+var enhanced_grid: EnhancedGrid
+var construction_manager: ConstructionManager
+var notification_history: NotificationHistory
+var notification_panel: NotificationPanel
 
 func _ready() -> void:
 	initialize_map()
@@ -36,12 +40,6 @@ func _ready() -> void:
 	show_initial_help()
 	print("Main scene initialized")
 
-func show_initial_help() -> void:
-	EventBus.notify("Welcome to Underworld Tycoon!", "success")
-	EventBus.notify("Use Tab to switch between Legal/Illegal panels", "info")
-	EventBus.notify("Click on colored squares to build businesses", "info")
-	EventBus.notify("Hover over plots for detailed information", "info")
-
 func initialize_map() -> void:
 	# Generate district visuals
 	MapGenerator.generate_district_visuals(districts_container)
@@ -49,9 +47,13 @@ func initialize_map() -> void:
 	# Generate roads
 	MapGenerator.generate_roads($World)
 	
-	# Generate grid overlay - initially hidden
-	grid_overlay = MapGenerator.generate_grid_overlay($World)
-	grid_overlay.visible = false
+	# Setup enhanced grid system
+	enhanced_grid = EnhancedGrid.new()
+	enhanced_grid.name = "EnhancedGrid"
+	enhanced_grid.grid_size = grid_size
+	enhanced_grid.map_width = map_width
+	enhanced_grid.map_height = map_height
+	$World.add_child(enhanced_grid)
 	
 	# Setup building plots system
 	building_plots = BuildingPlots.new()
@@ -76,9 +78,25 @@ func setup_income_manager() -> void:
 	effects_manager = EffectsManager.new()
 	add_child(effects_manager)
 	
+	# Setup notification history
+	notification_history = NotificationHistory.new()
+	notification_history.add_to_group("notification_history")
+	add_child(notification_history)
+	
+	# Setup construction manager
+	construction_manager = ConstructionManager.new()
+	construction_manager.enhanced_grid = enhanced_grid
+	construction_manager.building_plots = building_plots
+	construction_manager.effects_manager = effects_manager
+	$World.add_child(construction_manager)
+	
 	# Setup plot tooltip
 	plot_tooltip = PlotTooltip.new()
 	$UI.add_child(plot_tooltip)
+	
+	# Setup notification panel
+	notification_panel = NotificationPanel.new()
+	$UI.add_child(notification_panel)
 
 func connect_signals() -> void:
 	EventBus.building_selected.connect(_on_building_selected)
@@ -106,6 +124,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		handle_left_click()
 	elif event.is_action_pressed("right_click"):
 		cancel_building_placement()
+	
+	# New shortcuts
+	elif event is InputEventKey:
+		match event.keycode:
+			KEY_H:
+				if event.pressed:
+					toggle_notification_history()
+			KEY_G:
+				if event.pressed:
+					toggle_enhanced_grid()
+			KEY_ESCAPE:
+				if event.pressed and is_placing_building:
+					cancel_building_placement()
 
 func handle_camera_movement(delta: float) -> void:
 	var direction = Vector2.ZERO
@@ -140,10 +171,13 @@ func start_building_placement(building_type: String) -> void:
 		is_placing_building = true
 		current_tool = "build"
 		
-		# Show available plots for this building type
-		highlight_valid_plots(building_type)
-		
-		EventBus.notify("Select a plot to build " + building_type + ". Right-click to cancel.")
+		# Use enhanced construction system
+		if construction_manager:
+			construction_manager.start_construction_mode(building_type)
+		else:
+			# Fallback to old system
+			highlight_valid_plots(building_type)
+			EventBus.notify("Select a plot to build " + building_type + ". Right-click to cancel.")
 	else:
 		EventBus.notify_error("Not enough dirty money to build " + building_type)
 
@@ -186,9 +220,13 @@ func cancel_building_placement() -> void:
 	current_tool = ""
 	selected_plot_data = {}
 	
-	# Clear plot highlights
-	if building_plots:
-		clear_plot_highlights()
+	# Use enhanced construction system
+	if construction_manager:
+		construction_manager.end_construction_mode()
+	else:
+		# Fallback to old system
+		if building_plots:
+			clear_plot_highlights()
 	
 	if building_preview:
 		building_preview.queue_free()
@@ -381,3 +419,22 @@ func get_district_name(district_id: int) -> String:
 		2: return "Residential"
 		3: return "Waterfront"
 		_: return "Unknown"
+
+func toggle_notification_history() -> void:
+	if notification_panel:
+		if notification_panel.visible:
+			notification_panel.hide_panel()
+		else:
+			notification_panel.show_panel()
+
+func toggle_enhanced_grid() -> void:
+	if enhanced_grid:
+		enhanced_grid.toggle_grid()
+		EventBus.notify("Grid " + ("shown" if enhanced_grid.is_visible else "hidden"), "info")
+
+func show_initial_help() -> void:
+	EventBus.notify("Welcome to Underworld Tycoon!", "success")
+	EventBus.notify("Use Tab to switch between Legal/Illegal panels", "info")
+	EventBus.notify("Click on colored squares to build businesses", "info")
+	EventBus.notify("Press H to view notification history", "info")
+	EventBus.notify("Press G to toggle grid overlay", "info")
