@@ -353,6 +353,6 @@ func format_timestamp(timestamp: int) -> String:
 	]
 
 func format_playtime(seconds: float) -> String:
-	var hours = int(seconds / 3600)
-	var minutes = int((seconds % 3600) / 60)
+	var hours = int(seconds / 3600.0)
+	var minutes = int(int(seconds) % 3600 / 60)
 	return "%02d:%02d" % [hours, minutes]
