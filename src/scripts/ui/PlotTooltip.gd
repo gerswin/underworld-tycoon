@@ -1,10 +1,10 @@
 extends Control
 class_name PlotTooltip
 
-@onready var background: ColorRect
-@onready var title_label: Label
-@onready var info_label: Label
-@onready var stats_container: VBoxContainer
+var background: ColorRect
+var title_label: Label
+var info_label: Label
+var stats_container: VBoxContainer
 
 var is_visible_tooltip: bool = false
 var fade_tween: Tween
